@@ -28,7 +28,7 @@ export type CreateSavingInput = {
   amount: number;
   month: string;
   note?: string;
-  proofImageUrl?: string;
+  proofImageUrl: string;
 };
 
 export type SavingsResponse = {

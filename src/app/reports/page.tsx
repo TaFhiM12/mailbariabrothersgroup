@@ -70,6 +70,11 @@ export default function ReportsPage() {
   };
 
   const downloadReport = async (kind: "xlsx" | "pdf") => {
+    if (tab === "summary" && kind === "xlsx") {
+      toast.error("Financial summary is available as PDF only");
+      return;
+    }
+
     try {
       setActionLoading(true);
       if (tab === "collection") {
@@ -114,7 +119,7 @@ export default function ReportsPage() {
                   className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm outline-none focus:border-emerald-500"
                 />
                 <button
-                  disabled={actionLoading}
+                  disabled={actionLoading || tab === "summary"}
                   onClick={() => downloadReport("xlsx")}
                   className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-50"
                 >
