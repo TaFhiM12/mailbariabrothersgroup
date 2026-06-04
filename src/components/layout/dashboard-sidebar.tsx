@@ -102,7 +102,7 @@ export function DashboardSidebar() {
 
   return (
     <>
-      <aside className="hidden min-h-screen w-72 border-r border-slate-800 bg-slate-950 px-4 py-6 text-white lg:block">
+      <aside className="hidden min-h-screen w-72 shrink-0 overflow-y-auto border-r border-slate-800 bg-slate-950 px-4 py-6 text-white lg:block lg:h-screen">
         <div className="px-3">
           <h1 className="text-xl font-bold tracking-tight">Mailbaria Club</h1>
           <p className="mt-1 text-xs font-medium text-slate-300">
