@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+}
+
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.table-scroll {
+  width: 100%;
+  max-width: 100%;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-scroll-tight {
+  max-height: min(64vh, 620px);
+}
+
+.table-scroll table {
+  width: 100%;
+}
+
+.table-scroll thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+thead {
+  background: #eef6f1;
+}
+
+th {
+  color: #163326 !important;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+td {
+  color: #1f2937 !important;
+  font-weight: 500;
+}
+
+td p,
+td span:not([class*="bg-"]),
+td code {
+  color: inherit;
+}
+
+input,
+textarea,
+select {
+  color: #0f172a;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #64748b;
+}
+
+@media (max-width: 640px) {
+  th,
+  td {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+}

@@ -1,0 +1,27 @@
+"use client";
+
+import { ReactNode } from "react";
+import { DashboardSidebar } from "./dashboard-sidebar";
+import { DashboardHeader } from "./dashboard-header";
+
+type DashboardShellProps = {
+  children: ReactNode;
+};
+
+export function DashboardShell({ children }: DashboardShellProps) {
+  return (
+    <div className="min-h-screen overflow-x-hidden bg-slate-100">
+      <div className="flex min-w-0">
+        <DashboardSidebar />
+
+        <div className="min-w-0 flex-1">
+          <DashboardHeader />
+
+          <main className="min-w-0 max-w-full overflow-x-hidden p-4 pb-24 sm:p-6 lg:pb-6">
+            {children}
+          </main>
+        </div>
+      </div>
+    </div>
+  );
+}
