@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
-import { ImagePlus, X } from "lucide-react";
+import { Calendar, ImagePlus, X } from "lucide-react";
 import { toast } from "sonner";
 import { savingService } from "@/services/saving.service";
 
@@ -37,6 +37,7 @@ export function AddSavingModal({
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const monthInputRef = useRef<HTMLInputElement>(null);
 
   if (!open) return null;
 
@@ -131,6 +132,19 @@ export function AddSavingModal({
     }
   };
 
+  const openMonthPicker = () => {
+    const input = monthInputRef.current;
+
+    if (!input) return;
+
+    if (typeof input.showPicker === "function") {
+      input.showPicker();
+      return;
+    }
+
+    input.focus();
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 px-4">
       <form
@@ -176,13 +190,24 @@ export function AddSavingModal({
 
         <div className="mt-4">
           <label className="text-sm font-medium text-slate-700">Month</label>
-          <input
-            type="month"
-            value={month}
-            onChange={(event) => setMonth(event.target.value)}
-            className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-emerald-500"
-            required
-          />
+          <div className="relative mt-2">
+            <input
+              ref={monthInputRef}
+              type="month"
+              value={month}
+              onChange={(event) => setMonth(event.target.value)}
+              className="w-full rounded-xl border border-slate-200 px-4 py-3 pr-12 outline-none focus:border-emerald-500"
+              required
+            />
+            <button
+              type="button"
+              onClick={openMonthPicker}
+              aria-label="Open month picker"
+              className="absolute right-2 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
+            >
+              <Calendar size={18} />
+            </button>
+          </div>
         </div>
 
         <div className="mt-4">
