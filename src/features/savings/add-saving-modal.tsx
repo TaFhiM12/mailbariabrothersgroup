@@ -1,10 +1,12 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Calendar, ImagePlus, X } from "lucide-react";
 import { toast } from "sonner";
+import { getApiErrorMessage } from "@/lib/get-api-error-message";
 import { savingService } from "@/services/saving.service";
+import { settingService } from "@/services/setting.service";
 
 const CLOUDINARY_CLOUD_NAME = "dlrxpdjbz";
 const CLOUDINARY_UPLOAD_PRESET = "mailbariabrothersgroup";
@@ -30,6 +32,7 @@ export function AddSavingModal({
   onSuccess,
 }: AddSavingModalProps) {
   const [amount, setAmount] = useState(1000);
+  const [monthlySavingAmount, setMonthlySavingAmount] = useState(1000);
   const [month, setMonth] = useState(getCurrentMonth());
   const [note, setNote] = useState("");
   const [proofImageUrl, setProofImageUrl] = useState("");
@@ -38,6 +41,24 @@ export function AddSavingModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const monthInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const loadSettings = async () => {
+      try {
+        const result = await settingService.get();
+        const configuredAmount = Number(result.data.monthlySavingAmount);
+
+        setMonthlySavingAmount(configuredAmount);
+        setAmount(configuredAmount);
+      } catch {
+        toast.error("Failed to load saving amount");
+      }
+    };
+
+    void loadSettings();
+  }, [open]);
 
   if (!open) return null;
 
@@ -96,7 +117,7 @@ export function AddSavingModal({
   };
 
   const resetForm = () => {
-    setAmount(1000);
+    setAmount(monthlySavingAmount);
     setMonth(getCurrentMonth());
     setNote("");
     setProofImageUrl("");
@@ -105,6 +126,14 @@ export function AddSavingModal({
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (!proofImageUrl) {
+      const message = "Please upload payment proof screenshot";
+
+      setError(message);
+      toast.error(message);
+      return;
+    }
 
     setLoading(true);
     setError("");
@@ -122,11 +151,11 @@ export function AddSavingModal({
       resetForm();
       onSuccess();
       onClose();
-    } catch {
-      setError(
-        "Failed to submit saving. Maybe already submitted for this month."
-      );
-      toast.error("Failed to submit saving");
+    } catch (error) {
+      const message = getApiErrorMessage(error, "Failed to submit saving");
+
+      setError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -182,8 +211,8 @@ export function AddSavingModal({
           <input
             type="number"
             value={amount}
-            onChange={(event) => setAmount(Number(event.target.value))}
-            className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-emerald-500"
+            readOnly
+            className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-emerald-500"
             required
           />
         </div>
