@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Home } from "lucide-react";
+import { getApiErrorMessage } from "@/lib/get-api-error-message";
 import { authService } from "@/services/auth.service";
 import { useAuthStore } from "@/store/auth.store";
 
@@ -33,8 +34,8 @@ export default function LoginPage() {
       setAuth(result.data.user, result.data.token);
 
       router.push("/dashboard");
-    } catch {
-      setError("Invalid email or password");
+    } catch (error) {
+      setError(getApiErrorMessage(error, "Invalid email or password"));
     } finally {
       setIsLoading(false);
     }

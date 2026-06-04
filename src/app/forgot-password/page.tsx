@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Home, Mail } from "lucide-react";
+import { getApiErrorMessage } from "@/lib/get-api-error-message";
 import { authService } from "@/services/auth.service";
 
 export default function ForgotPasswordPage() {
@@ -21,8 +22,10 @@ export default function ForgotPasswordPage() {
       setIsLoading(true);
       const result = await authService.forgotPassword(email);
       setMessage(result.message || "If this email exists, a reset link has been sent.");
-    } catch {
-      setError("Could not send reset link. Please try again.");
+    } catch (error) {
+      setError(
+        getApiErrorMessage(error, "Could not send reset link. Please try again.")
+      );
     } finally {
       setIsLoading(false);
     }

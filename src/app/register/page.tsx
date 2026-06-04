@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Home } from "lucide-react";
+import { getApiErrorMessage } from "@/lib/get-api-error-message";
 import { authService } from "@/services/auth.service";
 import { useAuthStore } from "@/store/auth.store";
 
@@ -33,8 +34,13 @@ export default function RegisterPage() {
       const result = await authService.register({ name, email, password });
       setAuth(result.data.user, result.data.token);
       router.push("/dashboard");
-    } catch {
-      setError("Could not create account. Please check your details.");
+    } catch (error) {
+      setError(
+        getApiErrorMessage(
+          error,
+          "Could not create account. Please check your details."
+        )
+      );
     } finally {
       setIsLoading(false);
     }

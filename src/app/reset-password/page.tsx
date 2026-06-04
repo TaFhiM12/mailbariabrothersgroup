@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Home, KeyRound } from "lucide-react";
+import { getApiErrorMessage } from "@/lib/get-api-error-message";
 import { authService } from "@/services/auth.service";
 
 export default function ResetPasswordPage() {
@@ -46,8 +47,8 @@ function ResetPasswordForm() {
       const result = await authService.resetPassword(token, password);
       setMessage(result.message || "Password reset successfully");
       setTimeout(() => router.push("/login"), 1200);
-    } catch {
-      setError("Invalid or expired reset token.");
+    } catch (error) {
+      setError(getApiErrorMessage(error, "Invalid or expired reset token."));
     } finally {
       setIsLoading(false);
     }
