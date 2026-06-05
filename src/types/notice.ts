@@ -2,6 +2,7 @@ export type Notice = {
   id: string;
   title: string;
   body: string;
+  imageUrl?: string | null;
   createdBy: string;
   createdAt: string;
   updatedAt: string;
@@ -10,11 +11,13 @@ export type Notice = {
 export type CreateNoticeInput = {
   title: string;
   body: string;
+  imageUrl?: string;
 };
 
 export type UpdateNoticeInput = {
   title?: string;
   body?: string;
+  imageUrl?: string;
 };
 
 export type NoticeResponse = {

@@ -1,8 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import { Plus, Check, X, Eye } from "lucide-react";
+import {
+  Plus,
+  Check,
+  X,
+  Eye,
+  CircleDollarSign,
+  Clock,
+  Filter,
+  Search,
+  ShieldCheck,
+  XCircle,
+} from "lucide-react";
 import { toast } from "sonner";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { ProtectedRoute } from "@/components/shared/protected-route";
@@ -19,6 +30,13 @@ export default function SavingsPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedSaving, setSelectedSaving] = useState<Saving | null>(null);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<"ALL" | Saving["status"]>(
+    "ALL"
+  );
+  const [monthFilter, setMonthFilter] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [minAmount, setMinAmount] = useState("");
+  const [maxAmount, setMaxAmount] = useState("");
 
   const canApprove =
     user?.role === "PRESIDENT" || user?.role === "ACCOUNTANT";
@@ -55,10 +73,72 @@ export default function SavingsPage() {
     }
   };
 
-  const handleReject = async (id: string) => {
+  const filteredSavings = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    const minimum = minAmount ? Number(minAmount) : null;
+    const maximum = maxAmount ? Number(maxAmount) : null;
+
+    return savings.filter((saving) => {
+      const amount = Number(saving.amount);
+      const searchable = [
+        saving.user?.name,
+        saving.user?.email,
+        saving.month,
+        saving.status,
+        saving.note,
+        saving.amount,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return (
+        (statusFilter === "ALL" || saving.status === statusFilter) &&
+        (!monthFilter || saving.month === monthFilter) &&
+        (!query || searchable.includes(query)) &&
+        (minimum === null || amount >= minimum) &&
+        (maximum === null || amount <= maximum)
+      );
+    });
+  }, [maxAmount, minAmount, monthFilter, savings, searchQuery, statusFilter]);
+
+  const summary = useMemo(() => {
+    return savings.reduce(
+      (totals, saving) => {
+        const amount = Number(saving.amount);
+
+        totals.all += amount;
+        totals.count += 1;
+
+        if (saving.status === "APPROVED") {
+          totals.approved += amount;
+        } else if (saving.status === "PENDING") {
+          totals.pending += amount;
+        } else {
+          totals.rejected += amount;
+        }
+
+        return totals;
+      },
+      {
+        all: 0,
+        approved: 0,
+        pending: 0,
+        rejected: 0,
+        count: 0,
+      }
+    );
+  }, [savings]);
+
+  const months = useMemo(
+    () => Array.from(new Set(savings.map((saving) => saving.month))).sort(),
+    [savings]
+  );
+
+  const handleReject = async (id: string, note = "") => {
     try {
       setActionLoadingId(id);
-      await savingService.reject(id);
+      await savingService.reject(id, note);
       toast.success("Saving rejected successfully");
       setSelectedSaving(null);
       await loadSavings();
@@ -83,7 +163,7 @@ export default function SavingsPage() {
             <div className="min-w-0">
               <h1 className="text-2xl font-bold text-slate-900">Savings</h1>
               <p className="text-sm font-medium text-slate-600">
-                Submit and verify monthly savings with payment proof.
+                Submit, track, filter and verify savings with payment proof.
               </p>
             </div>
 
@@ -95,6 +175,103 @@ export default function SavingsPage() {
               Add Saving
             </button>
           </div>
+
+          <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <SavingStatCard
+              title="Total Savings"
+              value={`৳ ${formatMoney(summary.all)}`}
+              detail={`${summary.count} entr${summary.count === 1 ? "y" : "ies"}`}
+              icon={CircleDollarSign}
+              tone="slate"
+            />
+            <SavingStatCard
+              title="Approved"
+              value={`৳ ${formatMoney(summary.approved)}`}
+              detail="Added to account"
+              icon={ShieldCheck}
+              tone="emerald"
+            />
+            <SavingStatCard
+              title="Pending"
+              value={`৳ ${formatMoney(summary.pending)}`}
+              detail="Waiting for review"
+              icon={Clock}
+              tone="amber"
+            />
+            <SavingStatCard
+              title="Rejected"
+              value={`৳ ${formatMoney(summary.rejected)}`}
+              detail="Needs correction"
+              icon={XCircle}
+              tone="rose"
+            />
+          </section>
+
+          <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="mb-3 flex items-center gap-2 text-sm font-black text-slate-900">
+              <Filter size={18} className="text-slate-500" />
+              Savings Filters
+            </div>
+
+            <div className="grid gap-3 lg:grid-cols-[1.4fr_0.8fr_0.8fr_0.6fr_0.6fr]">
+              <div className="relative">
+                <Search
+                  className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                  size={18}
+                />
+                <input
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  placeholder="Search member, email, note..."
+                  className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-11 pr-4 text-sm font-semibold outline-none focus:border-emerald-400 focus:bg-white focus:ring-4 focus:ring-emerald-100"
+                />
+              </div>
+
+              <select
+                value={statusFilter}
+                onChange={(event) =>
+                  setStatusFilter(event.target.value as "ALL" | Saving["status"])
+                }
+                className="h-11 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-semibold outline-none focus:border-emerald-400 focus:bg-white focus:ring-4 focus:ring-emerald-100"
+              >
+                <option value="ALL">All status</option>
+                <option value="PENDING">Pending</option>
+                <option value="APPROVED">Approved</option>
+                <option value="REJECTED">Rejected</option>
+              </select>
+
+              <select
+                value={monthFilter}
+                onChange={(event) => setMonthFilter(event.target.value)}
+                className="h-11 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-semibold outline-none focus:border-emerald-400 focus:bg-white focus:ring-4 focus:ring-emerald-100"
+              >
+                <option value="">All months</option>
+                {months.map((month) => (
+                  <option key={month} value={month}>
+                    {month}
+                  </option>
+                ))}
+              </select>
+
+              <input
+                type="number"
+                min="0"
+                value={minAmount}
+                onChange={(event) => setMinAmount(event.target.value)}
+                placeholder="Min ৳"
+                className="h-11 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-semibold outline-none focus:border-emerald-400 focus:bg-white focus:ring-4 focus:ring-emerald-100"
+              />
+
+              <input
+                type="number"
+                min="0"
+                value={maxAmount}
+                onChange={(event) => setMaxAmount(event.target.value)}
+                placeholder="Max ৳"
+                className="h-11 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-semibold outline-none focus:border-emerald-400 focus:bg-white focus:ring-4 focus:ring-emerald-100"
+              />
+            </div>
+          </section>
 
           <div className="table-scroll table-scroll-tight rounded-xl border border-slate-200 bg-white shadow-sm">
             <table
@@ -131,17 +308,17 @@ export default function SavingsPage() {
                       Loading savings...
                     </td>
                   </tr>
-                ) : savings.length === 0 ? (
+                ) : filteredSavings.length === 0 ? (
                   <tr>
                     <td
                         className="px-4 py-5 text-slate-600"
                       colSpan={canApprove ? 6 : 5}
                     >
-                      No savings found.
+                      No savings matched your filters.
                     </td>
                   </tr>
                 ) : (
-                  savings.map((saving) => (
+                  filteredSavings.map((saving) => (
                     <tr key={saving.id} className="border-t border-slate-100">
                       <td className="px-4 py-3">
                         <div>
@@ -214,6 +391,7 @@ export default function SavingsPage() {
         />
 
         <SavingProofModal
+          key={selectedSaving?.id || "empty-saving-proof"}
           saving={selectedSaving}
           canApprove={canApprove}
           actionLoadingId={actionLoadingId}
@@ -223,6 +401,49 @@ export default function SavingsPage() {
         />
       </DashboardShell>
     </ProtectedRoute>
+  );
+}
+
+const formatMoney = (value: number) =>
+  new Intl.NumberFormat("en-BD", {
+    maximumFractionDigits: 0,
+  }).format(value);
+
+function SavingStatCard({
+  title,
+  value,
+  detail,
+  icon: Icon,
+  tone,
+}: {
+  title: string;
+  value: string;
+  detail: string;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  tone: "slate" | "emerald" | "amber" | "rose";
+}) {
+  const tones = {
+    slate: "bg-slate-950 text-white",
+    emerald: "bg-emerald-50 text-emerald-700",
+    amber: "bg-amber-50 text-amber-700",
+    rose: "bg-rose-50 text-rose-700",
+  };
+
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase text-slate-400">{title}</p>
+          <p className="mt-2 text-xl font-black text-slate-950">{value}</p>
+          <p className="mt-1 text-xs font-semibold text-slate-500">{detail}</p>
+        </div>
+        <div
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${tones[tone]}`}
+        >
+          <Icon size={20} />
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -255,8 +476,10 @@ function SavingProofModal({
   actionLoadingId: string | null;
   onClose: () => void;
   onApprove: (id: string) => void;
-  onReject: (id: string) => void;
+  onReject: (id: string, note?: string) => void;
 }) {
+  const [rejectionReason, setRejectionReason] = useState("");
+
   if (!saving) return null;
 
   const isPending = saving.status === "PENDING";
@@ -320,10 +543,23 @@ function SavingProofModal({
             </div>
 
             {canApprove && isPending && (
-              <div className="mt-6 grid grid-cols-2 gap-3">
+              <div className="mt-6 space-y-3">
+                <div>
+                  <label className="text-xs font-black uppercase text-slate-400">
+                    Rejection reason
+                  </label>
+                  <textarea
+                    value={rejectionReason}
+                    onChange={(event) => setRejectionReason(event.target.value)}
+                    placeholder="Optional, but helpful for the member"
+                    className="mt-2 min-h-24 w-full resize-none rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm font-semibold outline-none focus:border-emerald-400 focus:bg-white focus:ring-4 focus:ring-emerald-100"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
                 <button
                   disabled={isLoading}
-                  onClick={() => onReject(saving.id)}
+                  onClick={() => onReject(saving.id, rejectionReason)}
                   className="inline-flex items-center justify-center gap-2 rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-100 disabled:opacity-60"
                 >
                   <X size={17} />
@@ -338,6 +574,7 @@ function SavingProofModal({
                   <Check size={17} />
                   Approve
                 </button>
+                </div>
               </div>
             )}
 
