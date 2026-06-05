@@ -3,20 +3,45 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Bell, CheckCheck, Home, LogOut, Search } from "lucide-react";
-import { useRouter } from "next/navigation";
+import {
+  Bell,
+  CheckCheck,
+  ChevronRight,
+  Command,
+  Home,
+  LogOut,
+  Search,
+  ShieldCheck,
+} from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
 import { notificationService } from "@/services/notification.service";
 import { useAuthStore } from "@/store/auth.store";
 import type { Notification } from "@/types/notification";
 
+const pageLabels: Record<string, string> = {
+  "/dashboard": "Dashboard",
+  "/savings": "Savings",
+  "/expenses": "Expenses",
+  "/notifications": "Notifications",
+  "/profile": "Profile",
+  "/notices": "Notices",
+  "/members": "Members",
+  "/reports": "Reports",
+  "/audit-logs": "Audit Logs",
+  "/settings": "Settings",
+};
+
 export function DashboardHeader() {
   const router = useRouter();
+  const pathname = usePathname();
   const { user, logout } = useAuthStore();
   const notificationRef = useRef<HTMLDivElement>(null);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isNotificationsLoading, setIsNotificationsLoading] = useState(false);
+  const normalizedPath = pathname === "/" ? "/" : pathname.replace(/\/$/, "");
+  const currentPage = pageLabels[normalizedPath] || "Workspace";
 
   const handleLogout = () => {
     logout();
@@ -84,29 +109,51 @@ export function DashboardHeader() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/90 px-4 py-4 backdrop-blur sm:px-6">
+    <header className="sticky top-0 z-20 border-b border-slate-200/80 bg-white/85 px-4 py-3 backdrop-blur-xl sm:px-6">
       <div className="flex min-w-0 items-center justify-between gap-3">
-        <div className="min-w-0">
-          <h2 className="truncate text-base font-bold text-slate-900 sm:text-lg">
-            Welcome back, {user?.name || "Member"}
-          </h2>
-          <p className="truncate text-sm font-medium text-slate-600">
-            {user?.role || "MEMBER"} dashboard overview
-          </p>
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-950 text-emerald-300 shadow-lg shadow-slate-950/10">
+            <ShieldCheck size={22} />
+          </div>
+
+          <div className="min-w-0">
+            <div className="flex min-w-0 items-center gap-2">
+              <h2 className="truncate text-base font-black text-slate-950 sm:text-lg">
+                Mailbaria Club
+              </h2>
+              <ChevronRight
+                size={16}
+                className="hidden shrink-0 text-slate-300 sm:block"
+              />
+              <p className="hidden truncate text-sm font-black text-slate-500 sm:block">
+                {currentPage}
+              </p>
+            </div>
+            <div className="mt-1 flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,0.12)]" />
+              <p className="truncate text-xs font-bold uppercase tracking-wide text-slate-500">
+                {user?.role || "MEMBER"} workspace
+              </p>
+            </div>
+          </div>
         </div>
 
-        <div className="hidden w-full max-w-md items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 md:flex">
-          <Search size={18} className="text-slate-400" />
+        <div className="hidden h-12 w-full max-w-xl items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 shadow-inner shadow-white md:flex">
+          <Search size={19} className="text-slate-400" />
           <input
             placeholder="Search savings, reports, members..."
-            className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400"
+            className="w-full bg-transparent text-sm font-semibold outline-none placeholder:text-slate-400"
           />
+          <div className="hidden items-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-black text-slate-400 xl:flex">
+            <Command size={12} />
+            K
+          </div>
         </div>
 
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <Link
             href="/"
-            className="rounded-xl border border-slate-200 p-2 text-slate-700 transition hover:bg-slate-50"
+            className="rounded-2xl border border-slate-200 bg-white p-2.5 text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50"
             aria-label="Go to home page"
             title="Home"
           >
@@ -117,10 +164,10 @@ export function DashboardHeader() {
             <button
               type="button"
               onClick={handleToggleNotifications}
-              className={`relative rounded-xl border p-2 transition ${
+              className={`relative rounded-2xl border p-2.5 shadow-sm transition ${
                 isNotificationsOpen
                   ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                  : "border-slate-200 text-slate-700 hover:bg-slate-50"
+                  : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
               }`}
               aria-label="Open notifications"
             >
@@ -206,16 +253,18 @@ export function DashboardHeader() {
             )}
           </div>
 
-          <div className="hidden text-right sm:block">
-            <p className="text-sm font-semibold text-slate-900">
+          <div className="hidden min-w-0 rounded-2xl border border-slate-200 bg-white px-3 py-2 text-right shadow-sm lg:block">
+            <p className="max-w-44 truncate text-sm font-black text-slate-950">
               {user?.name || "User"}
             </p>
-            <p className="text-xs text-slate-500">{user?.email}</p>
+            <p className="max-w-44 truncate text-xs font-semibold text-slate-500">
+              {user?.email}
+            </p>
           </div>
 
           <Link
             href="/profile"
-            className="hidden h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-100 text-slate-700 sm:flex sm:items-center sm:justify-center"
+            className="hidden h-12 w-12 shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 text-slate-700 shadow-sm sm:flex sm:items-center sm:justify-center"
             aria-label="Open profile settings"
             title="Profile"
           >
@@ -236,7 +285,7 @@ export function DashboardHeader() {
 
           <button
             onClick={handleLogout}
-            className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
+            className="inline-flex h-12 items-center justify-center rounded-2xl bg-slate-950 px-5 text-sm font-black text-white shadow-lg shadow-slate-950/10 transition hover:bg-slate-800"
           >
             <span className="hidden sm:inline">Logout</span>
             <LogOut size={18} className="sm:hidden" />
