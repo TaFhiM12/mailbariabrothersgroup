@@ -31,8 +31,8 @@ export function AddSavingModal({
   onClose,
   onSuccess,
 }: AddSavingModalProps) {
-  const [amount, setAmount] = useState(1000);
-  const [defaultAmount, setDefaultAmount] = useState(1000);
+  const [amount, setAmount] = useState("1000");
+  const [defaultAmount, setDefaultAmount] = useState("1000");
   const [month, setMonth] = useState(getCurrentMonth());
   const [note, setNote] = useState("");
   const [proofImageUrl, setProofImageUrl] = useState("");
@@ -48,7 +48,7 @@ export function AddSavingModal({
     const loadSettings = async () => {
       try {
         const result = await settingService.get();
-        const configuredAmount = Number(result.data.monthlySavingAmount);
+        const configuredAmount = String(Number(result.data.monthlySavingAmount));
 
         setDefaultAmount(configuredAmount);
         setAmount(configuredAmount);
@@ -135,12 +135,22 @@ export function AddSavingModal({
       return;
     }
 
+    const parsedAmount = Number(amount);
+
+    if (!amount || !Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+      const message = "Please enter a valid saving amount";
+
+      setError(message);
+      toast.error(message);
+      return;
+    }
+
     setLoading(true);
     setError("");
 
     try {
       await savingService.create({
-        amount,
+        amount: parsedAmount,
         month,
         note,
         proofImageUrl,
@@ -213,7 +223,16 @@ export function AddSavingModal({
             value={amount}
             min={1}
             step={1}
-            onChange={(event) => setAmount(Number(event.target.value))}
+            onChange={(event) => {
+              const value = event.target.value;
+
+              if (value === "") {
+                setAmount("");
+                return;
+              }
+
+              setAmount(value.replace(/^0+(?=\d)/, ""));
+            }}
             className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-emerald-500"
             required
           />
