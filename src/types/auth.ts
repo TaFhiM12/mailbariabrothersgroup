@@ -16,6 +16,16 @@ export type User = {
   bio?: string | null;
   createdAt: string;
   updatedAt: string;
+  savingsSummary?: {
+    approvedTotal: number;
+    pendingTotal: number;
+    rejectedTotal: number;
+    approvedCount: number;
+    pendingCount: number;
+    rejectedCount: number;
+    currentMonthApprovedTotal: number;
+    currentMonthApprovedCount: number;
+  };
 };
 
 export type AuthResponse = {

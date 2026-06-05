@@ -61,7 +61,7 @@ export default function SettingsPage() {
             <div>
               <h1 className="text-2xl font-bold text-slate-900">Settings</h1>
               <p className="text-sm text-slate-500">
-                Configure club savings rules.
+                Configure club defaults and reminder rules.
               </p>
             </div>
 
@@ -88,7 +88,7 @@ export default function SettingsPage() {
                   <div className="mt-4 grid gap-4 sm:grid-cols-2">
                     <div>
                       <label className="text-sm font-medium text-slate-700">
-                        Monthly Saving Amount
+                        Default Saving Amount
                       </label>
                       <input
                         type="number"
@@ -100,6 +100,9 @@ export default function SettingsPage() {
                         className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-emerald-500"
                         required
                       />
+                      <p className="mt-1 text-xs text-slate-500">
+                        Shown as the starting amount. Users can edit it.
+                      </p>
                     </div>
 
                     <div>

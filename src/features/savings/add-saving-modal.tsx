@@ -32,7 +32,7 @@ export function AddSavingModal({
   onSuccess,
 }: AddSavingModalProps) {
   const [amount, setAmount] = useState(1000);
-  const [monthlySavingAmount, setMonthlySavingAmount] = useState(1000);
+  const [defaultAmount, setDefaultAmount] = useState(1000);
   const [month, setMonth] = useState(getCurrentMonth());
   const [note, setNote] = useState("");
   const [proofImageUrl, setProofImageUrl] = useState("");
@@ -50,10 +50,10 @@ export function AddSavingModal({
         const result = await settingService.get();
         const configuredAmount = Number(result.data.monthlySavingAmount);
 
-        setMonthlySavingAmount(configuredAmount);
+        setDefaultAmount(configuredAmount);
         setAmount(configuredAmount);
       } catch {
-        toast.error("Failed to load saving amount");
+        toast.error("Failed to load default saving amount");
       }
     };
 
@@ -117,7 +117,7 @@ export function AddSavingModal({
   };
 
   const resetForm = () => {
-    setAmount(monthlySavingAmount);
+    setAmount(defaultAmount);
     setMonth(getCurrentMonth());
     setNote("");
     setProofImageUrl("");
@@ -211,8 +211,10 @@ export function AddSavingModal({
           <input
             type="number"
             value={amount}
-            readOnly
-            className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-emerald-500"
+            min={1}
+            step={1}
+            onChange={(event) => setAmount(Number(event.target.value))}
+            className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-emerald-500"
             required
           />
         </div>

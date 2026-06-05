@@ -12,6 +12,8 @@ import type { Role, User } from "@/types/auth";
 
 const roles: Role[] = ["PRESIDENT", "ACCOUNTANT", "COORDINATOR", "MEMBER"];
 
+const formatMoney = (value = 0) => `৳ ${value.toLocaleString("en-US")}`;
+
 export default function MembersPage() {
   const { user } = useAuthStore();
   const [members, setMembers] = useState<User[]>([]);
@@ -77,12 +79,15 @@ export default function MembersPage() {
             </div>
 
             <div className="overflow-x-auto rounded-2xl bg-white shadow-sm">
-              <table className="w-full min-w-[820px] text-left text-sm">
+              <table className="w-full min-w-[1120px] text-left text-sm">
                 <thead className="bg-slate-50 text-slate-500">
                   <tr>
                     <th className="px-5 py-4">Name</th>
                     <th className="px-5 py-4">Email</th>
                     <th className="px-5 py-4">Role</th>
+                    <th className="px-5 py-4">Total Savings</th>
+                    <th className="px-5 py-4">This Month</th>
+                    <th className="px-5 py-4">Pending</th>
                     <th className="px-5 py-4">Status</th>
                     <th className="px-5 py-4">Joined</th>
                     {canManage && <th className="px-5 py-4">Action</th>}
@@ -94,7 +99,7 @@ export default function MembersPage() {
                     <tr>
                       <td
                         className="px-5 py-6 text-slate-500"
-                        colSpan={canManage ? 6 : 5}
+                        colSpan={canManage ? 9 : 8}
                       >
                         Loading members...
                       </td>
@@ -103,7 +108,7 @@ export default function MembersPage() {
                     <tr>
                       <td
                         className="px-5 py-6 text-slate-500"
-                        colSpan={canManage ? 6 : 5}
+                        colSpan={canManage ? 9 : 8}
                       >
                         No members found.
                       </td>
@@ -139,6 +144,34 @@ export default function MembersPage() {
                           ) : (
                             member.role
                           )}
+                        </td>
+                        <td className="px-5 py-4">
+                          <p className="font-bold text-slate-900">
+                            {formatMoney(member.savingsSummary?.approvedTotal)}
+                          </p>
+                          <p className="text-xs font-medium text-slate-500">
+                            {member.savingsSummary?.approvedCount ?? 0} approved
+                          </p>
+                        </td>
+                        <td className="px-5 py-4">
+                          <p className="font-bold text-slate-900">
+                            {formatMoney(
+                              member.savingsSummary?.currentMonthApprovedTotal
+                            )}
+                          </p>
+                          <p className="text-xs font-medium text-slate-500">
+                            {member.savingsSummary?.currentMonthApprovedCount ??
+                              0}{" "}
+                            approved
+                          </p>
+                        </td>
+                        <td className="px-5 py-4">
+                          <p className="font-bold text-amber-700">
+                            {formatMoney(member.savingsSummary?.pendingTotal)}
+                          </p>
+                          <p className="text-xs font-medium text-slate-500">
+                            {member.savingsSummary?.pendingCount ?? 0} pending
+                          </p>
                         </td>
                         <td className="px-5 py-4">
                           <span
