@@ -109,36 +109,36 @@ export function DashboardHeader() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-20 border-b border-slate-200/80 bg-white/85 px-4 py-3 backdrop-blur-xl sm:px-6">
-      <div className="flex min-w-0 items-center justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-3">
+    <header className="sticky top-0 z-20 border-b border-slate-200/80 bg-white/90 px-4 py-3 backdrop-blur-xl sm:px-6">
+      <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 xl:grid-cols-[280px_minmax(280px,1fr)_auto]">
+        <div className="flex min-w-0 items-center gap-3 xl:w-[280px]">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-950 text-emerald-300 shadow-lg shadow-slate-950/10">
             <ShieldCheck size={22} />
           </div>
 
           <div className="min-w-0">
             <div className="flex min-w-0 items-center gap-2">
-              <h2 className="truncate text-base font-black text-slate-950 sm:text-lg">
+              <h2 className="max-w-[9rem] truncate text-base font-black leading-5 text-slate-950 sm:max-w-[13rem] sm:text-lg xl:max-w-[11rem]">
                 Mailbaria Club
               </h2>
               <ChevronRight
                 size={16}
-                className="hidden shrink-0 text-slate-300 sm:block"
+                className="hidden shrink-0 text-slate-300 2xl:block"
               />
-              <p className="hidden truncate text-sm font-black text-slate-500 sm:block">
+              <p className="hidden max-w-[6rem] truncate text-sm font-black text-slate-500 2xl:block">
                 {currentPage}
               </p>
             </div>
             <div className="mt-1 flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_0_4px_rgba(16,185,129,0.12)]" />
-              <p className="truncate text-xs font-bold uppercase tracking-wide text-slate-500">
+              <p className="max-w-[9rem] truncate text-xs font-bold uppercase text-slate-500 sm:max-w-[13rem] xl:max-w-[12rem]">
                 {user?.role || "MEMBER"} workspace
               </p>
             </div>
           </div>
         </div>
 
-        <div className="hidden h-12 w-full max-w-xl items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 shadow-inner shadow-white md:flex">
+        <div className="hidden h-12 min-w-0 items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 shadow-inner shadow-white xl:flex">
           <Search size={19} className="text-slate-400" />
           <input
             placeholder="Search savings, reports, members..."
@@ -150,7 +150,7 @@ export function DashboardHeader() {
           </div>
         </div>
 
-        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+        <div className="flex min-w-0 shrink-0 items-center justify-end gap-2 sm:gap-3">
           <Link
             href="/"
             className="rounded-2xl border border-slate-200 bg-white p-2.5 text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50"
@@ -254,10 +254,10 @@ export function DashboardHeader() {
           </div>
 
           <div className="hidden min-w-0 rounded-2xl border border-slate-200 bg-white px-3 py-2 text-right shadow-sm lg:block">
-            <p className="max-w-44 truncate text-sm font-black text-slate-950">
+            <p className="max-w-36 truncate text-sm font-black text-slate-950 2xl:max-w-44">
               {user?.name || "User"}
             </p>
-            <p className="max-w-44 truncate text-xs font-semibold text-slate-500">
+            <p className="max-w-36 truncate text-xs font-semibold text-slate-500 2xl:max-w-44">
               {user?.email}
             </p>
           </div>

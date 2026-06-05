@@ -14,6 +14,7 @@ import {
   BarChart3,
   Settings,
   ShieldCheck,
+  Sparkles,
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth.store";
 import type { Role } from "@/types/auth";
@@ -103,14 +104,54 @@ export function DashboardSidebar() {
   return (
     <>
       <aside className="hidden min-h-screen w-72 shrink-0 overflow-y-auto border-r border-slate-800 bg-slate-950 px-4 py-6 text-white lg:block lg:h-screen">
-        <div className="px-3">
-          <h1 className="text-xl font-bold tracking-tight">Mailbaria Club</h1>
-          <p className="mt-1 text-xs font-medium text-slate-300">
-            Savings Management System
-          </p>
+        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06] p-4 shadow-2xl shadow-black/20">
+          <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-emerald-400/20 blur-2xl" />
+          <div className="absolute -bottom-12 left-8 h-24 w-24 rounded-full bg-cyan-400/10 blur-2xl" />
+
+          <div className="relative flex items-center gap-3">
+            <div className="flex h-13 w-13 shrink-0 items-center justify-center rounded-2xl border border-emerald-300/20 bg-slate-950 text-emerald-300 shadow-lg shadow-emerald-950/20">
+              <ShieldCheck size={25} />
+            </div>
+
+            <div className="min-w-0">
+              <p className="truncate text-lg font-black leading-5 text-white">
+                Mailbaria Club
+              </p>
+              <p className="mt-1 truncate text-xs font-bold text-slate-400">
+                Savings Management Suite
+              </p>
+            </div>
+          </div>
+
+          <div className="relative mt-4 flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-slate-950/70 px-3 py-2">
+            <div className="flex min-w-0 items-center gap-2">
+              <span className="h-2 w-2 shrink-0 rounded-full bg-emerald-400 shadow-[0_0_0_4px_rgba(52,211,153,0.14)]" />
+              <span className="truncate text-[11px] font-black uppercase text-slate-300">
+                Live Workspace
+              </span>
+            </div>
+            <Sparkles size={15} className="shrink-0 text-emerald-300" />
+          </div>
+
+          <div className="relative mt-3 grid grid-cols-2 gap-2">
+            <div className="rounded-2xl bg-white/[0.06] px-3 py-2">
+              <p className="text-[10px] font-black uppercase text-slate-500">
+                Role
+              </p>
+              <p className="mt-1 truncate text-xs font-black text-emerald-200">
+                {user?.role || "Member"}
+              </p>
+            </div>
+            <div className="rounded-2xl bg-white/[0.06] px-3 py-2">
+              <p className="text-[10px] font-black uppercase text-slate-500">
+                Mode
+              </p>
+              <p className="mt-1 text-xs font-black text-white">Club</p>
+            </div>
+          </div>
         </div>
 
-        <nav className="mt-8 space-y-1">
+        <nav className="mt-6 space-y-1">
           {visibleItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
